@@ -11,11 +11,9 @@ module KmsApi
     #
     # ```
     # - app/
-    #   - graphql/
-    #     - resolvers/
+    #   - kms_graphql/
     #     - types/
     #       - query_type.rb
-    #     - loaders/
     #     - mutations/
     #     - {app_name}_schema.rb
     # ```
@@ -25,14 +23,14 @@ module KmsApi
     # Add a controller for serving GraphQL queries:
     #
     # ```
-    # app/controllers/graphql_controller.rb
+    # app/controllers/kms/api/graphql_controller.rb
     # ```
     #
     # Add a route for that controller:
     #
     # ```ruby
     # # config/routes.rb
-    # post "/graphql", to: "graphql#execute"
+    # post "/kms/graphql", to: "graphql#execute"
     # ```
     #
     # Accept a `--relay` option which adds
@@ -41,6 +39,7 @@ module KmsApi
     # Accept a `--batch` option which adds `GraphQL::Batch` setup.
     #
     # Use `--no-graphiql` to skip `graphiql-rails` installation.
+
     class InstallGenerator < Rails::Generators::Base
       include Core
 
@@ -85,7 +84,7 @@ module KmsApi
 
       GRAPHIQL_ROUTE = <<-RUBY
 if Rails.env.development?
-    mount GraphiQL::Rails::Engine, at: "/graphiql", graphql_path: "/graphql"
+    mount GraphiQL::Rails::Engine, at: "/kms_graphiql", graphql_path: "/kms_graphql"
   end
 RUBY
 
@@ -93,14 +92,19 @@ RUBY
         create_dir("app/kms_graphql/types")
         template("schema.erb", schema_file_path)
 
-        # Note: Yuo can't have a schema without the query type, otherwise introspection breaks
+        # Note: You can't have a schema without the query type, otherwise introspection breaks
         template("query_type.erb", "app/kms_graphql/types/query_type.rb")
         insert_root_type('query', 'QueryType')
+
+        # Create KmsModel and KmsEntry Types
+        create_dir("app/kms_graphql/types/kms")
+        template("model_type.erb", "app/kms_graphql/types/kms/model_type.rb")
+        template("entry_type.erb", "app/kms_graphql/types/kms/entry_type.rb")        
 
         create_mutation_root_type unless options.skip_mutation_root_type?
 
         template("graphql_controller.erb", "app/controllers/kms/api/graphql_controller.rb")
-        route('post "/graphql", to: "kms/api/graphql#execute"')
+        route('post "/kms_graphql", to: "kms/api/graphql#execute"')
 
         gem('graphql', '~>1.6.4')
         gem("graphiql-rails", group: :development)
