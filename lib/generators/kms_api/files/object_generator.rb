@@ -2,15 +2,6 @@
 require 'generators/graphql/type_generator'
 
 module KmsApi
-  # module Generators
-    # Generate an object type by name,
-    # with the specified fields.
-    #
-    # ```
-    # rails g graphql:object PostType name:String!
-    # ```
-    #
-    # Add the Node interface with `--node`.
     class ObjectGenerator < TypeGeneratorBase
       desc "Create a GraphQL::ObjectType with the given name and fields"
       source_root File.expand_path('../templates', __FILE__)
