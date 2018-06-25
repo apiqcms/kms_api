@@ -1,4 +1,6 @@
 require "friendly_id"
+require "graphql"
+require "graphiql/rails"
 module Kms
   module Api
     class Engine < ::Rails::Engine

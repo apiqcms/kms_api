@@ -1,0 +1,48 @@
+Examples for Query and Mutation:
+================================
+
+query {
+  allCollections {
+    id
+    collection_name
+    kms_model_name
+  }
+  allEntries {
+    id
+    collection_name
+    values
+  }
+  singleModelEntries(collection_name: "processors") {
+    id
+    collection_name
+    values
+  }
+  singleEntry(collection_name: "processors", id: 9) {
+    id
+    collection_name
+    values
+  }
+}
+
+mutation {
+  createCollection(
+    kms_model_name: "Company Type",
+    collection_name: "company_types",
+    description: "CompanyTypes Model"
+    allow_creation_using_form: false
+  ) {
+    id
+    collection_name
+    kms_model_name
+  }
+  createEntry(
+    collection_name: "company_types",
+    values: [
+      ["name", "Honda"]
+    ]
+  ) {
+    id
+    collection_name
+    values
+  }
+}

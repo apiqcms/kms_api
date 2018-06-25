@@ -26,3 +26,7 @@ This extension adds "Api" feature in [KMS](https://github.com/apiqcms/kms) and a
         bundle install
 
 5. Restart KMS instance
+
+6. To generate initial files inside '/app':
+				
+				rails g kms_api:files
