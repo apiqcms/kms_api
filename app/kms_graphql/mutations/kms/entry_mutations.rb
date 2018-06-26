@@ -67,4 +67,31 @@ module Mutations::Kms::EntryMutations
       @entry.save! ? { entry: @entry } : { errors: @entry.errors.to_a }
     }
   end
+
+  Delete = GraphQL::Relay::Mutation.define do
+    name "DeleteEntry"
+
+    # Define input parameters
+    # input_field :entry_id, types.Int
+    input_field :slug, types.String
+    input_field :collection_name, types.String
+
+    # Define return parameters
+    return_field :status, types.String
+    return_field :entry, Types::Kms::EntryType
+    return_field :errors, types.String
+
+    resolve ->(object, inputs, ctx) {
+      # Find Collection
+      @collection = Kms::Model.find_by_collection_name(inputs[:collection_name])
+      return { errors: "Collection not found: #{inputs[:collection_name]}" } unless @collection
+      
+      # Find Entry
+      @entry = @collection.entries.find_by_slug(inputs[:slug])
+      return { errors: "Entry not found: #{inputs[:slug]}" } unless @entry
+
+      # Delete Entry
+      @entry.destroy! ? { status: true, entry: @entry } : { status: false, errors: @entry.errors.to_a }
+    }
+  end
 end

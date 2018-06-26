@@ -12,12 +12,12 @@ query queryCalls {
     collection_name
     values
   }
-  singleModelEntries(collection_name: "processors") {
+  singleModelEntries(collection_name: "car_brands") {
     id
     collection_name
     values
   }
-  singleEntry(collection_name: "processors", id: 9) {
+  singleEntry(collection_name: "cars", id: 18) {
     id
     collection_name
     values
@@ -64,6 +64,17 @@ mutation mutationCalls {
       slug
       collection_name
       values
+    }
+    errors
+  }
+  deleteEntry(input: {
+    slug: "bmw-760li-xdrive-v12-excellence" # its slug of entry
+    collection_name: "cars"
+  }) {
+    entry {
+      id
+      slug
+      collection_name
     }
     errors
   }

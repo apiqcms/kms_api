@@ -24,4 +24,7 @@ Types::MutationType = GraphQL::ObjectType.define do
   
   # Update Entry for any Collection using 'slug'
   field :updateEntry, Mutations::Kms::EntryMutations::Update.field
+  
+  # Delete Entry for any Collection using 'slug'
+  field :deleteEntry, Mutations::Kms::EntryMutations::Delete.field
 end
