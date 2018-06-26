@@ -1,7 +1,7 @@
 Examples for Query and Mutation:
 ================================
 
-query {
+query queryCalls {
   allCollections {
     id
     collection_name
@@ -24,7 +24,7 @@ query {
   }
 }
 
-mutation {
+mutation mutationCalls {
   createCollection(
     kms_model_name: "Company Type",
     collection_name: "company_types",
@@ -35,14 +35,36 @@ mutation {
     collection_name
     kms_model_name
   }
-  createEntry(
-    collection_name: "company_types",
+  createEntry(input: {
+    collection_name: "cars",
     values: [
-      ["name", "Honda"]
+      ["name", "BMW 760Li xDrive V12 Excellence"]
+      ["brand", "3"],
+      ["price", "2Cr"],
+      ["user", "2"]
     ]
-  ) {
-    id
-    collection_name
-    values
+  }) {
+    entry {
+      id
+      slug
+      collection_name
+      values
+    }
+    errors
+  }
+  updateEntry(input: {
+    slug: "bmw-760li-xdrive-v12-excellence" # its slug of entry
+    collection_name: "cars",
+    values: [
+      ["price", "2.1Cr"]
+    ]
+  }) {
+    entry {
+      id
+      slug
+      collection_name
+      values
+    }
+    errors
   }
 }
