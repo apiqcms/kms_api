@@ -19,17 +19,9 @@ Types::MutationType = GraphQL::ObjectType.define do
     }
   end
 
-  field :createEntry, Types::Kms::EntryType do
-    description "Create an entry of any collection."
-    
-    argument :collection_name, !types.String
-    argument :values, types[types[types.String]]
-    
-    resolve ->(obj, args, ctx) {
-      debugger
-      Kms::Model.find_by_collection_name(args[:collection_name]).entries.create!(
-        values: args[:values].to_h
-      )
-    }
-  end
+  # Create Entry for any Collection
+  field :createEntry, Mutations::Kms::EntryMutations::Create.field
+  
+  # Update Entry for any Collection using 'slug'
+  field :updateEntry, Mutations::Kms::EntryMutations::Update.field
 end

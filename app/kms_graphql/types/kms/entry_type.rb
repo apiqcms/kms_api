@@ -2,6 +2,7 @@ Types::Kms::EntryType = GraphQL::ObjectType.define do
   name "KmsEntry"
 
   field :id, types.Int
+  field :slug, types.String
 
   # field :collection_name, !Types::Kms::ModelType
   field :collection_name, types.String do
