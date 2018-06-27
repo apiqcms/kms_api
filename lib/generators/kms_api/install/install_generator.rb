@@ -25,7 +25,7 @@ module KmsApi
 
     GRAPHIQL_ROUTE = <<-RUBY
 if Rails.env.development?
-    mount GraphiQL::Rails::Engine, at: "kms_api/graphiql", graphql_path: "api"
+    mount GraphiQL::Rails::Engine, at: "api/graphiql", graphql_path: "/api"
   end
   mount Kms::Api::Engine => '/kms'
 RUBY
