@@ -1,35 +1,75 @@
-# module Mutations::Kms::EntryMutations
-#   Create = GraphQL::Relay::Mutation.define do
-#     name "CreateCollection"
+module Mutations::Kms::ModelMutations
+  Create = GraphQL::Relay::Mutation.define do
+    name "CreateCollection"
+    description "Create New Collection"
 
-#     # Define input parameters
-#     input_field :collection_name, types.String
+    # Define input parameters
+    input_field :kms_model_name, !types.String
+    input_field :collection_name, !types.String
+    input_field :description, types.String
+    input_field :label_field, !types.String
+    input_field :allow_creation_using_form, types.Boolean
+    input_field :fields_attributes, !types[Inputs::Kms::FieldInput]
 
-#     # Define return parameters
-#     return_field :entry, Types::Kms::ModelType
-#     return_field :errors, types.String
+    # Define return parameters
+    return_field :collection, Types::Kms::ModelType
+    return_field :errors, types.String
+    
+    resolve ->(object, inputs, ctx) {
+      model = Kms::Model.find_by_collection_name(inputs[:collection_name])
+      return {errors: "KmsModel alredy exist: #{inputs[:collection_name]}"} if model.present?
+      new_model = Kms::Model.new(inputs.to_h)
 
-#     resolve ->(object, inputs, ctx) {
-#       # Write Code
+      new_model.save ? { collection: new_model } : {errors: new_model.errors}
+    }
+  end
 
-#       { entry: @collection }
-#     }
-#   end
+  Update = GraphQL::Relay::Mutation.define do
+    name "UpdateCollection"
+    description "Update Existing Collection"
 
-#   Update = GraphQL::Relay::Mutation.define do
-#     name "UpdateCollection"
+    # Define input parameters
+    input_field :collection_name, types.String
+    input_field :kms_model_name, types.String
+    input_field :collection_name, types.String
+    input_field :description, types.String
+    input_field :label_field, types.String
+    input_field :allow_creation_using_form, types.Boolean
+    input_field :fields_attributes, types[Inputs::Kms::FieldInput]
 
-#     # Define input parameters
-#     input_field :collection_name, types.String
+    # Define return parameters
+    return_field :collection, Types::Kms::ModelType
+    return_field :errors, types.String
+    
+    resolve ->(object, inputs, ctx) {
+      # Write Code
+      debugger
 
-#     # Define return parameters
-#     return_field :entry, Types::Kms::ModelType
-#     return_field :errors, types.String
+      { collection: @collection }
+    }
+  end
 
-#     resolve ->(object, inputs, ctx) {
-#       # Write Code
+  Delete = GraphQL::Relay::Mutation.define do
+    name "DeleteCollection"
+    description "Delete Existing Collection"
 
-#       { entry: @collection }
-#     }
-#   end
-# end
+    # Define input parameters
+    input_field :collection_name, types.String
+    input_field :kms_model_name, types.String
+    input_field :collection_name, types.String
+    input_field :description, types.String
+    input_field :allow_creation_using_form, types.Boolean
+    input_field :fields_attributes, types[Inputs::Kms::FieldInput]
+
+    # Define return parameters
+    return_field :collection, Types::Kms::ModelType
+    return_field :errors, types.String
+    
+    resolve ->(object, inputs, ctx) {
+      # Write Code
+      debugger
+
+      { collection: @collection }
+    }
+  end
+end

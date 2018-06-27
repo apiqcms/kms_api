@@ -10,19 +10,26 @@ module KmsApi
   #
   # ```
   # - app/
+  #   - controllers/
+  #     - kms/
+  #       - api/
+  #         - graphql_controller.rb
   #   - kms_graphql/
-  #     - types/
-  #       - query_type.rb
+  #     - inputs/
+  #       - kms/
+  #         - field_input.rb
   #     - mutations/
+  #       - kms/
+  #         - entry_mutations.rb
+  #         - model_mutations.rb
+  #     - types/
+  #       - kms/
+  #         - entry_type.rb
+  #         - field_type.rb
+  #         - model_type.rb
+  #       - mutation_type.rb
+  #       - query_type.rb
   #     - {app_name}_schema.rb
-  # ```
-  #
-  # (Add `.gitkeep`s by default, support `--skip-keeps`)
-  #
-  # Add a controller for serving GraphQL queries:
-  #
-  # ```
-  # app/controllers/kms/api/graphql_controller.rb
   # ```
 
   class FilesGenerator < Rails::Generators::Base
@@ -76,16 +83,20 @@ module KmsApi
 
       # Create KmsModel and KmsEntry Types
       create_dir("app/kms_graphql/types/kms")
-      template("model_type.erb", "app/kms_graphql/types/kms/model_type.rb")
       template("entry_type.erb", "app/kms_graphql/types/kms/entry_type.rb")
+      template("field_type.erb", "app/kms_graphql/types/kms/field_type.rb")
+      template("model_type.erb", "app/kms_graphql/types/kms/model_type.rb")
       
       create_mutation_root_type unless options.skip_mutation_root_type?
 
       # Create ModelMutations and EntryMutations Types
       create_dir("app/kms_graphql/mutations/kms")
-      template("model_mutations.erb", "app/kms_graphql/mutations/kms/model_mutations.rb")
       template("entry_mutations.erb", "app/kms_graphql/mutations/kms/entry_mutations.rb")
+      template("model_mutations.erb", "app/kms_graphql/mutations/kms/model_mutations.rb")
 
+      # Create InputObjects
+      create_dir("app/kms_graphql/inputs/kms")
+      template("field_input.erb", "app/kms_graphql/inputs/kms/field_input.rb")
 
       template("graphql_controller.erb", "app/controllers/kms/api/graphql_controller.rb")
     end
