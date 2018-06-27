@@ -2,21 +2,14 @@ Types::QueryType = GraphQL::ObjectType.define do
   name "Query"
 
   field :allCollections, types[Types::Kms::ModelType] do
-    description "Get all Models"
+    description "Get all Collections"
     resolve ->(root, args, ctx) {
       Kms::Model.all
     } 
   end
 
-  field :allEntries, types[Types::Kms::EntryType] do
-    description "Get all Entries"
-    resolve ->(root, args, ctx) {
-      Kms::Entry.all
-    } 
-  end
-
   field :singleModelEntries, types[Types::Kms::EntryType] do
-    description "Get all Entries"
+    description "Get all Entries of from Specified Collection"
     argument :collection_name, types.String
     resolve ->(root, args, ctx) {
       Kms::Model.find_by_collection_name(args[:collection_name]).entries
@@ -24,7 +17,7 @@ Types::QueryType = GraphQL::ObjectType.define do
   end
 
   field :singleEntry, !Types::Kms::EntryType do
-    description "Get specific Entry"
+    description "Get specific Entry of specified Collection"
     argument :collection_name, types.String
     argument :id, types.Int
     resolve ->(root, args, ctx) {      

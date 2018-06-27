@@ -1,6 +1,7 @@
 module Mutations::Kms::EntryMutations
   Create = GraphQL::Relay::Mutation.define do
     name "CreateEntry"
+    description "Create new Entry."
 
     # Define input parameters
     input_field :collection_name, types.String
@@ -14,17 +15,10 @@ module Mutations::Kms::EntryMutations
       # Find Collection
       @collection = Kms::Model.find_by_collection_name(inputs[:collection_name])
       return { errors: "Collection not found: #{inputs[:collection_name]}" } unless @collection
-      
-      # Get Fileds of Collection
-      collection_fields = @collection.fields
-      hashed_values = inputs[:values].to_h
-      
+
       # Construct New Entry
-      new_entry = @collection.entries.new(values: {})
-      collection_fields.each do |c_field|
-        value = hashed_values[c_field.liquor_name]
-        new_entry.values[c_field.liquor_name] = value if value.present?
-      end
+      hashed_values = inputs[:values].to_h
+      new_entry = @collection.entries.new(values: hashed_values)
       
       # Save New Entry
       new_entry.save! ? { entry: new_entry } : { errors: new_entry.errors.to_a }
@@ -33,6 +27,7 @@ module Mutations::Kms::EntryMutations
 
   Update = GraphQL::Relay::Mutation.define do
     name "UpdateEntry"
+    description "Update existing Entry."
 
     # Define input parameters
     # input_field :entry_id, types.Int
@@ -52,24 +47,16 @@ module Mutations::Kms::EntryMutations
       # Find Entry
       @entry = @collection.entries.find_by_slug(inputs[:slug])
       return { errors: "Entry not found: #{inputs[:slug]}" } unless @entry
-      # Get Fileds of Collection
-      collection_fields = @collection.fields
+      
+      # update Entry
       hashed_values = inputs[:values].to_h
-
-      # Re-cunstruct Entry Values
-      @entry.values ||= {}
-      collection_fields.each do |c_field|
-        value = hashed_values[c_field.liquor_name]
-        @entry.values[c_field.liquor_name] = value if value.present?
-      end
-
-      # Update Entry
-      @entry.save! ? { entry: @entry } : { errors: @entry.errors.to_a }
+      @entry.update_attributes(values: hashed_values) ? { entry: @entry } : { errors: @entry.errors.to_a }
     }
   end
 
   Delete = GraphQL::Relay::Mutation.define do
     name "DeleteEntry"
+    description "Delete existing Entry."
 
     # Define input parameters
     # input_field :entry_id, types.Int
@@ -91,7 +78,7 @@ module Mutations::Kms::EntryMutations
       return { errors: "Entry not found: #{inputs[:slug]}" } unless @entry
 
       # Delete Entry
-      @entry.destroy! ? { status: true, entry: @entry } : { status: false, errors: @entry.errors.to_a }
+      @entry.destroy ? { status: true, entry: @entry } : { status: false, errors: @entry.errors.to_a }
     }
   end
 end

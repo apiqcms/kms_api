@@ -17,11 +17,8 @@ class Kms::Api::GraphqlController < ApplicationController
   def ensure_hash(ambiguous_param)
     case ambiguous_param
     when String
-      if ambiguous_param.present?
-        ensure_hash(JSON.parse(ambiguous_param))
-      else
-        {}
-      end
+      return {} unless ambiguous_param.present?
+      ensure_hash(JSON.parse(ambiguous_param))
     when Hash, ActionController::Parameters
       ambiguous_param
     when nil
