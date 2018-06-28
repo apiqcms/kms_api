@@ -6,5 +6,5 @@ Inputs::Kms::FieldInput = GraphQL::InputObjectType.define do
   argument :liquor_name, !types.String
   argument :type, !types.String
   argument :class_name, types.String
-  argument :_destoy, types.String
+  argument :_destroy, types.String
 end

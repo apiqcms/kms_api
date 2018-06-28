@@ -3,7 +3,7 @@ module Mutations::Kms::ModelMutations
     name "CreateCollection"
     description "Create New Collection"
 
-    # Define input parameters
+    # input parameters
     input_field :kms_model_name, !types.String
     input_field :collection_name, !types.String
     input_field :description, types.String
@@ -11,16 +11,22 @@ module Mutations::Kms::ModelMutations
     input_field :allow_creation_using_form, types.Boolean
     input_field :fields_attributes, !types[Inputs::Kms::FieldInput]
 
-    # Define return parameters
+    # return parameters
     return_field :collection, Types::Kms::ModelType
     return_field :errors, types.String
     
     resolve ->(object, inputs, ctx) {
-      model = Kms::Model.find_by_collection_name(inputs[:collection_name])
-      return {errors: "KmsModel alredy exist: #{inputs[:collection_name]}"} if model.present?
-      new_model = Kms::Model.new(inputs.to_h)
-
-      new_model.save ? { collection: new_model } : {errors: new_model.errors}
+      begin
+        structured_inputs = inputs.to_h
+        collection = Kms::Model.find_by_collection_name(structured_inputs["collection_name"])
+        raise "KmsModel alredy exist: #{inputs[:collection_name]}" if collection.present?
+        # Initialize and save Collection
+        new_collection = Kms::Model.new structured_inputs
+        new_collection.save
+        { collection: new_collection }
+      rescue => e
+        { errors: e.message }
+      end
     }
   end
 
@@ -28,8 +34,8 @@ module Mutations::Kms::ModelMutations
     name "UpdateCollection"
     description "Update Existing Collection"
 
-    # Define input parameters
-    input_field :collection_name, types.String
+    # input parameters
+    input_field :search_collection_name, !types.String
     input_field :kms_model_name, types.String
     input_field :collection_name, types.String
     input_field :description, types.String
@@ -37,15 +43,21 @@ module Mutations::Kms::ModelMutations
     input_field :allow_creation_using_form, types.Boolean
     input_field :fields_attributes, types[Inputs::Kms::FieldInput]
 
-    # Define return parameters
+    # return parameters
     return_field :collection, Types::Kms::ModelType
     return_field :errors, types.String
     
     resolve ->(object, inputs, ctx) {
-      # Write Code
-      debugger
-
-      { collection: @collection }
+      begin
+        structured_inputs = inputs.to_h
+        collection = Kms::Model.find_by_collection_name structured_inputs.delete("search_collection_name")
+        raise "KmsModel doesn't exist: #{inputs[:collection_name]}" unless collection.present?
+        # Update Collection
+        collection.update_attributes structured_inputs
+        { collection: collection }
+      rescue => e
+        { errors: e.message }
+      end
     }
   end
 
@@ -53,23 +65,23 @@ module Mutations::Kms::ModelMutations
     name "DeleteCollection"
     description "Delete Existing Collection"
 
-    # Define input parameters
-    input_field :collection_name, types.String
-    input_field :kms_model_name, types.String
-    input_field :collection_name, types.String
-    input_field :description, types.String
-    input_field :allow_creation_using_form, types.Boolean
-    input_field :fields_attributes, types[Inputs::Kms::FieldInput]
+    # input parameters
+    input_field :collection_name, !types.String
 
-    # Define return parameters
+    # return parameters
     return_field :collection, Types::Kms::ModelType
     return_field :errors, types.String
     
     resolve ->(object, inputs, ctx) {
-      # Write Code
-      debugger
-
-      { collection: @collection }
+      begin
+        collection = Kms::Model.find_by_collection_name inputs[:collection_name]
+        raise "KmsModel doesn't exist: #{inputs[:collection_name]}" unless collection.present?
+        # Delete Collection
+        collection.destroy!
+        { collection: collection }
+      rescue => e
+        { errors: e.message }
+      end
     }
   end
 end
