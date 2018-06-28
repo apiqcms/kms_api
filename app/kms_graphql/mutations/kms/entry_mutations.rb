@@ -12,16 +12,19 @@ module Mutations::Kms::EntryMutations
     return_field :errors, types.String
 
     resolve ->(object, inputs, ctx) {
-      # Find Collection
-      @collection = Kms::Model.find_by_collection_name(inputs[:collection_name])
-      return { errors: "Collection not found: #{inputs[:collection_name]}" } unless @collection
+      begin
+        # Find Collection
+        @collection = Kms::Model.find_by_collection_name(inputs[:collection_name])
+        raise "Collection not found: #{inputs[:collection_name]}" unless @collection
 
-      # Construct New Entry
-      hashed_values = inputs[:values].to_h
-      new_entry = @collection.entries.new(values: hashed_values)
-      
-      # Save New Entry
-      new_entry.save! ? { entry: new_entry } : { errors: new_entry.errors.to_a }
+        # Initialize and save Entry
+        new_entry = @collection.entries.new(values: inputs[:values].to_h)
+        new_entry.save!
+
+        { entry: new_entry }
+      rescue => e
+        { errors: e.message }
+      end
     }
   end
 
@@ -30,7 +33,6 @@ module Mutations::Kms::EntryMutations
     description "Update existing Entry."
 
     # Define input parameters
-    # input_field :entry_id, types.Int
     input_field :slug, types.String
     input_field :collection_name, types.String
     input_field :values, types[types[types.String]]
@@ -40,17 +42,22 @@ module Mutations::Kms::EntryMutations
     return_field :errors, types.String
 
     resolve ->(object, inputs, ctx) {
-      # Find Collection
-      @collection = Kms::Model.find_by_collection_name(inputs[:collection_name])
-      return { errors: "Collection not found: #{inputs[:collection_name]}" } unless @collection
-      
-      # Find Entry
-      @entry = @collection.entries.find_by_slug(inputs[:slug])
-      return { errors: "Entry not found: #{inputs[:slug]}" } unless @entry
-      
-      # update Entry
-      hashed_values = inputs[:values].to_h
-      @entry.update_attributes(values: hashed_values) ? { entry: @entry } : { errors: @entry.errors.to_a }
+      begin
+        # Find Collection
+        @collection = Kms::Model.find_by_collection_name(inputs[:collection_name])
+        raise "Collection not found: #{inputs[:collection_name]}" unless @collection
+        
+        # Find Entry
+        @entry = @collection.entries.find_by_slug(inputs[:slug])
+        raise "Entry not found: #{inputs[:slug]}" unless @entry
+        
+        # update Entry
+        @entry.update_attributes(values: inputs[:values].to_h)
+
+        { entry: @entry }
+      rescue => e
+        { errors: e.message }
+      end
     }
   end
 
@@ -59,26 +66,30 @@ module Mutations::Kms::EntryMutations
     description "Delete existing Entry."
 
     # Define input parameters
-    # input_field :entry_id, types.Int
     input_field :slug, types.String
     input_field :collection_name, types.String
 
     # Define return parameters
-    return_field :status, types.String
     return_field :entry, Types::Kms::EntryType
     return_field :errors, types.String
 
     resolve ->(object, inputs, ctx) {
-      # Find Collection
-      @collection = Kms::Model.find_by_collection_name(inputs[:collection_name])
-      return { errors: "Collection not found: #{inputs[:collection_name]}" } unless @collection
-      
-      # Find Entry
-      @entry = @collection.entries.find_by_slug(inputs[:slug])
-      return { errors: "Entry not found: #{inputs[:slug]}" } unless @entry
+      begin
+        # Find Collection
+        @collection = Kms::Model.find_by_collection_name(inputs[:collection_name])
+        raise "Collection not found: #{inputs[:collection_name]}" unless @collection
+        
+        # Find Entry
+        @entry = @collection.entries.find_by_slug(inputs[:slug])
+        raise "Entry not found: #{inputs[:slug]}" unless @entry
 
-      # Delete Entry
-      @entry.destroy ? { status: true, entry: @entry } : { status: false, errors: @entry.errors.to_a }
+        # Delete Entry
+        @entry.destroy!
+
+        { entry: @entry }
+      rescue => e
+        { errors: e.message }
+      end
     }
   end
 end
