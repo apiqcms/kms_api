@@ -1,7 +1,7 @@
 Examples for Query and Mutation:
 ================================
 
-query queryCalls {
+query allCollectionsQuery {
   allCollections {
     id
     collection_name
@@ -9,32 +9,46 @@ query queryCalls {
     fields {
       id
       name
-      type
       liquor_name
+      type
+      class_name
     }
   }
+}
 
-  allEntries {
+query singleCollectionQuery {
+  singleCollection(collection_name: "sport_teams") {
     id
+    kms_model_name
     collection_name
-    values
+    fields {
+      id
+      name
+      liquor_name
+      type
+      class_name
+    }
   }
+}
 
-  singleModelEntries(collection_name: "car_brands") {
-    id
-    collection_name
-    values
-  }
-
-  singleEntry(collection_name: "cars", id: 18) {
+query singleCollectionAllEntriesQuery {
+  singleCollectionAllEntries(collection_name: "car_brands") {
     id
     collection_name
     values
   }
 }
 
-mutation mutationCalls {
-  createCollection(input: {
+query singleCollectionSingleEntryQuery {
+  singleCollectionSingleEntry(collection_name: "cars", id: 18) {
+    id
+    collection_name
+    values
+  }
+}
+
+mutation createCollectionMutation {
+  sportsCollection: createCollection(input: {
     kms_model_name: "Sport",
     collection_name: "sports",
     description: "Sports Model"
@@ -44,15 +58,18 @@ mutation mutationCalls {
         name: "Name",
         liquor_name: "name",
         type: "Kms::StringField"
-      }, {
+      },
+      {
         name: "Number of teams",
         liquor_name: "number_of_teams",
         type: "Kms::StringField"
-      }, {
+      },
+      {
         name: "Number of players per team",
         liquor_name: "number_of_players_per_team",
         type: "Kms::StringField"
-      }, {
+      },
+      {
         type: "Kms::FileField",
         name: "Logo",
         liquor_name: "logo"
@@ -73,7 +90,129 @@ mutation mutationCalls {
     }
     errors
   }
-  
+  teamsCollection: createCollection(input: {
+    kms_model_name: "Team",
+    collection_name: "teams",
+    description: "Teams Model",
+    label_field: "name",
+    fields_attributes: [
+      {
+        name: "Name",
+        liquor_name: "name",
+        type: "Kms::StringField"
+      },
+      {
+        name: "Origin Country Code",
+        liquor_name: "origin_country_code",
+        type: "Kms::StringField"
+      },
+      {
+        name: "Sport",
+        liquor_name: "sport_id",
+        type: "Kms::BelongsToField",
+        class_name: "7"
+      },
+      {
+        name: "Players",
+        liquor_name: "players",
+        type: "Kms::HasManyField",
+        class_name: "1"
+      }
+    ]
+  }) {
+    collection {
+      id
+      collection_name
+      kms_model_name
+      fields {
+        id
+        liquor_name
+        type
+        name
+        class_name
+      }
+    }
+    errors
+  }
+}
+
+mutation updateCollectionMutation {
+  updateCollection(input: {
+    search_collection_name: "teams",
+    kms_model_name: "Sport Team",
+    collection_name: "sport_teams",
+    description: "Sport Teams Model",
+    label_field: "name",
+    fields_attributes: [
+      {
+        id: 49,
+        name: "Name",
+        liquor_name: "name",
+        type: "Kms::StringField",
+        # _destroy: "1"
+      },
+      {
+        id: 50,
+        name: "Origin Country Code",
+        liquor_name: "origin_country_code",
+        type: "Kms::StringField",
+        # _destroy: "1"
+      },
+      {
+        id: 51,
+        name: "Sport",
+        liquor_name: "sport_id",
+        type: "Kms::BelongsToField",
+        class_name: "7",
+        # _destroy: "1"
+      },
+      {
+        id: 52,
+        name: "Players",
+        liquor_name: "players",
+        type: "Kms::HasManyField",
+        class_name: "1",
+        # _destroy: "1"
+      }
+    ]
+  }) {
+    collection {
+      id
+      collection_name
+      kms_model_name
+      fields {
+        id
+        liquor_name
+        type
+        name
+        class_name
+      }
+    }
+    errors
+  }
+}
+
+mutation deleteCollectionMutation {
+  deleteCollection(input: {
+    collection_name: "teams"
+  }) {
+    collection {
+      id
+      collection_name
+      kms_model_name
+    }
+    errors
+  }
+}
+
+mutation deleteAllCollectionsMutation {
+  deleteAllCollections(input: {}){
+    status
+    errors
+  }
+}
+
+mutation createEntryMutation {
   createEntry(input: {
     collection_name: "cars",
     values: [
@@ -91,9 +230,11 @@ mutation mutationCalls {
     }
     errors
   }
-  
+}
+
+mutation updateEntryMutation {
   updateEntry(input: {
-    slug: "bmw-760li-xdrive-v12-excellence" # its slug of entry
+    slug: "bmw-760li-xdrive-v12-excellence"
     collection_name: "cars",
     values: [
       ["price", "2.1Cr"]
@@ -107,15 +248,30 @@ mutation mutationCalls {
     }
     errors
   }
-  
+}
+
+mutation deleteEntryMutation {
   deleteEntry(input: {
-    slug: "bmw-760li-xdrive-v12-excellence" # its slug of entry
+    slug: "bmw-760li-xdrive-v12-excellence"
     collection_name: "cars"
   }) {
     entry {
       id
       slug
       collection_name
+    }
+    errors
+  }
+}
+
+mutation deleteAllEntriesMutation {
+  deleteAllEntries(input: {
+    collection_name: "sport_teams"
+  }) {
+    collection_name
+    entries {
+      id
+      values
     }
     errors
   }

@@ -50,8 +50,9 @@ module Mutations::Kms::ModelMutations
     resolve ->(object, inputs, ctx) {
       begin
         structured_inputs = inputs.to_h
-        collection = Kms::Model.find_by_collection_name structured_inputs.delete("search_collection_name")
-        raise "KmsModel doesn't exist: #{inputs[:collection_name]}" unless collection.present?
+        model_name = structured_inputs.delete("search_collection_name")
+        collection = Kms::Model.find_by_collection_name model_name
+        raise "KmsModel doesn't exist: #{inputs[:model_name]}" unless collection.present?
         # Update Collection
         collection.update_attributes structured_inputs
         { collection: collection }
@@ -79,6 +80,24 @@ module Mutations::Kms::ModelMutations
         # Delete Collection
         collection.destroy!
         { collection: collection }
+      rescue => e
+        { errors: e.message }
+      end
+    }
+  end
+
+  DeleteAll = GraphQL::Relay::Mutation.define do
+    name "DeleteAllCollection"
+    description "Delete All Existing Collection"
+
+    # return parameters
+    return_field :status, types.String
+    return_field :errors, types.String
+    
+    resolve ->(object, inputs, ctx) {
+      begin
+        collection = Kms::Model.destroy_all
+        { status: "Deleted all collections!" }
       rescue => e
         { errors: e.message }
       end
