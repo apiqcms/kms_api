@@ -18,9 +18,8 @@ module Mutations::Kms::EntryMutations
         raise "Collection not found: #{inputs[:collection_name]}" unless @collection
 
         # Initialize and save Entry
-        new_entry = @collection.entries.new(values: inputs[:values].to_h)
-        new_entry.save!
-
+        new_entry = @collection.entries.create!(values: inputs[:values].to_h)
+        
         { entry: new_entry }
       rescue => e
         { errors: e.message }
@@ -52,7 +51,7 @@ module Mutations::Kms::EntryMutations
         raise "Entry not found: #{inputs[:slug]}" unless @entry
         
         # update Entry
-        @entry.update_attributes(values: inputs[:values].to_h)
+        @entry.update(values: inputs[:values].to_h)
 
         { entry: @entry }
       rescue => e

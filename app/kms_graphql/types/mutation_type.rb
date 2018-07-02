@@ -12,7 +12,7 @@ Types::MutationType = GraphQL::ObjectType.define do
   field :deleteCollection, Mutations::Kms::ModelMutations::Delete.field
 
   # Delete Collection
-  field :deleteAllCollections, Mutations::Kms::ModelMutations::DeleteAll.field
+  field :deleteCollections, Mutations::Kms::ModelMutations::DeleteAll.field
 
   # # Entries
   # Create Entry for any Collection

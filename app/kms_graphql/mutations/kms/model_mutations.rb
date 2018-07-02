@@ -19,10 +19,9 @@ module Mutations::Kms::ModelMutations
       begin
         structured_inputs = inputs.to_h
         collection = Kms::Model.find_by_collection_name(structured_inputs["collection_name"])
-        raise "KmsModel alredy exist: #{inputs[:collection_name]}" if collection.present?
+        raise "Model alredy exist: #{inputs[:collection_name]}" if collection.present?
         # Initialize and save Collection
-        new_collection = Kms::Model.new structured_inputs
-        new_collection.save
+        new_collection = Kms::Model.create! structured_inputs
         { collection: new_collection }
       rescue => e
         { errors: e.message }
@@ -52,9 +51,9 @@ module Mutations::Kms::ModelMutations
         structured_inputs = inputs.to_h
         model_name = structured_inputs.delete("search_collection_name")
         collection = Kms::Model.find_by_collection_name model_name
-        raise "KmsModel doesn't exist: #{inputs[:model_name]}" unless collection.present?
+        raise "Model doesn't exist: #{inputs[:model_name]}" unless collection.present?
         # Update Collection
-        collection.update_attributes structured_inputs
+        collection.update structured_inputs
         { collection: collection }
       rescue => e
         { errors: e.message }
@@ -76,7 +75,7 @@ module Mutations::Kms::ModelMutations
     resolve ->(object, inputs, ctx) {
       begin
         collection = Kms::Model.find_by_collection_name inputs[:collection_name]
-        raise "KmsModel doesn't exist: #{inputs[:collection_name]}" unless collection.present?
+        raise "Model doesn't exist: #{inputs[:collection_name]}" unless collection.present?
         # Delete Collection
         collection.destroy!
         { collection: collection }
